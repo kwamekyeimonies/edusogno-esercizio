@@ -12,33 +12,71 @@
     <div class="dashboard-container">
         <h1>Ciao NOME ecco i tuoi eventi</h1>
         <a href="/public/event_pages/add_event.html" id="addEventBtn">Add Event</a>
-        <div class="event-container">
-            <div class="event-card">
-                <h2>Nome evento 1</h2>
-                <p>15-10-2022 15:00</p>
-                <div class="card-buttons">
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                </div>
-            </div>
-            <div class="event-card">
-                <h2>Nome evento 2</h2>
-                <p>15-10-2022 15:00</p>
-                <div class="card-buttons">
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                </div>
-            </div>
-            <div class="event-card">
-                <h2>Nome evento 3</h2>
-                <p>15-10-2022 15:00</p>
-                <div class="card-buttons">
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                </div>
-            </div>
+        <div class="event-container" id="eventContainer">
+            <!-- Events will be dynamically added here -->
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const eventContainer = document.getElementById("eventContainer");
+
+            // Function to fetch events from the server
+            const fetchEvents = async () => {
+                try {
+                    const response = await fetch("/dashboard/dashboard"); // Endpoint to fetch events
+                    const eventData = await response.json();
+                    if (response.ok) {
+                        // Render events on the page
+                        renderEvents(eventData.events);
+                    } else {
+                        console.error("Failed to fetch events:", eventData.message);
+                    }
+                } catch (error) {
+                    console.error("Error fetching events:", error);
+                }
+            };
+
+            // Function to render events on the page
+            const renderEvents = (events) => {
+                eventContainer.innerHTML = ""; // Clear previous content
+
+                events.forEach((event) => {
+                    const eventCard = document.createElement("div");
+                    eventCard.classList.add("event-card");
+
+                    const eventName = document.createElement("h2");
+                    eventName.textContent = event.nome_evento;
+
+                    const eventDateTime = document.createElement("p");
+                    eventDateTime.textContent = event.data_evento;
+
+                    const cardButtons = document.createElement("div");
+                    cardButtons.classList.add("card-buttons");
+
+                    const editButton = document.createElement("button");
+                    editButton.textContent = "Edit";
+                    editButton.classList.add("edit-btn");
+
+                    const deleteButton = document.createElement("button");
+                    deleteButton.textContent = "Delete";
+                    deleteButton.classList.add("delete-btn");
+
+                    cardButtons.appendChild(editButton);
+                    cardButtons.appendChild(deleteButton);
+
+                    eventCard.appendChild(eventName);
+                    eventCard.appendChild(eventDateTime);
+                    eventCard.appendChild(cardButtons);
+
+                    eventContainer.appendChild(eventCard);
+                });
+            };
+
+            // Fetch events when the page loads
+            fetchEvents();
+        });
+    </script>
 </body>
 
 </html>

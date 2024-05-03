@@ -164,4 +164,42 @@ if ($_SERVER['REQUEST_URI'] === '/event_pages/add_event') {
     }
 }
 
+
+// index.php
+
+// Include your database connection and other required files
+
+// Your existing code...
+
+// Handle event fetching route
+if ($_SERVER['REQUEST_URI'] === '/dashboard/dashboard') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        header('Content-Type: application/json'); // Set header for JSON response
+
+        // Connect to the database
+        $conn = connectToDatabase();
+
+        // Fetch all events from the database
+        $sql = "SELECT * FROM evento";
+        $result = $conn->query($sql);
+
+        if ($result) {
+            $events = array();
+            while ($row = $result->fetch_assoc()) {
+                $events[] = $row;
+            }
+            echo json_encode(['events' => $events]);
+        } else {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['message' => 'Failed to fetch events', 'error' => $conn->error]);
+        }
+
+        $conn->close();
+        exit();
+    }
+}
+
+// Your existing code...
+
+
 ?>
