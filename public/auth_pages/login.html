@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-    <link rel="stylesheet" href="/public/auth_pages//style/login_style.css">
+    <link rel="stylesheet" href="/public/auth_pages/style/login_style.css">
 </head>
 
 <body>
     <div class="login-container">
         <h2>Hai già un account?</h2>
-        <form action="/submit-your-login-form" method="POST">
+        <form id="loginForm">
             <div class="input-group">
                 <label for="email">Inserisci l'e-mail</label>
                 <input type="email" id="email" name="email" placeholder="name@example.com" required>
@@ -24,6 +24,58 @@
         </form>
         <p>Non hai ancora un profilo? <a href="/register">Registrati</a></p>
     </div>
+    <!-- Add this script tag inside the <head> section of your login.html -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+
+            loginForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                var formData = {
+                    email: document.getElementById("email").value,
+                    password: document.getElementById("password").value
+                };
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const data = await response.json();
+                        if (data.message === 'Login successful') {
+                            alert(data.message); // Display success message
+                            // Access and utilize the user data from data.user_data
+                            console.log(data.user_data); // Log the user data to the console
+                            // You can further process the user data as needed
+                            window.location.href = data.redirect; // Redirect to dashboard page
+                        } else {
+                            errorMessage.textContent = data.message; // Display error message
+                        }
+                    } else {
+                        // Handle non-JSON response
+                        alert('Success! Redirecting to dashboard...');
+                        window.location.href = '/public/dashboard/dashboard.html';
+                    }
+                } else {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const errorData = await response.json();
+                        errorMessage.textContent = errorData.message; // Display error message
+                    } else {
+                        errorMessage.textContent = 'An error occurred. Please try again later.';
+                    }
+                }
+            });
+        });
+    </script>
+
+
 </body>
 
 </html>
