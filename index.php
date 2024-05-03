@@ -128,5 +128,40 @@ if ($_SERVER['REQUEST_URI'] === '/register') {
     }
 }
 
+// Handle event submission route
+if ($_SERVER['REQUEST_URI'] === '/event_pages/add_event') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        header('Content-Type: application/json'); // Set header for JSON response
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Connect to the database
+        $conn = connectToDatabase();
+
+        // Prepare and bind
+        if ($stmt = $conn->prepare("INSERT INTO evento (attendees, nome_evento, data_evento) VALUES (?, ?, ?)")) {
+            $stmt->bind_param("sss", $attendees, $nome_evento, $data_evento);
+
+            // Set parameters from data received
+            $attendees = $data['attendees'];
+            $nome_evento = $data['nome_evento'];
+            $data_evento = $data['data_evento'];
+
+            if ($stmt->execute()) {
+                echo json_encode(['message' => 'Event submitted successfully']);
+            } else {
+                http_response_code(500); // Internal Server Error
+                echo json_encode(['message' => 'Failed to submit event', 'error' => $stmt->error]);
+            }
+
+            $stmt->close();
+        } else {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['message' => 'Failed to prepare statement', 'error' => $conn->error]);
+        }
+
+        $conn->close();
+        exit();
+    }
+}
 
 ?>
