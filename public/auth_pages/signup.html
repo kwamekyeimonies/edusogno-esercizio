@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Form</title>
-    <link rel="stylesheet" href="./style/sign_up_style.css">
+    <link rel="stylesheet" href="/public/auth_pages/style/sign_up_style.css">
 </head>
 
 <body>
@@ -14,15 +14,54 @@
             <img src="logo.png" alt="Logo" class="logo">
             <h1>Crea il tuo account</h1>
         </div>
-        <form action="#" method="post">
-            <input type="text" id="name" name="name" placeholder="Inserisci il nome">
-            <input type="text" id="surname" name="surname" placeholder="Inserisci il cognome">
-            <input type="email" id="email" name="email" placeholder="Inserisci l'email">
-            <input type="password" id="password" name="password" placeholder="Inserisci la password">
+        <form id="signupForm">
+            <input type="text" id="nome" name="nome" placeholder="Inserisci il nome" required>
+            <input type="text" id="cognome" name="cognome" placeholder="Inserisci il cognome" required>
+            <input type="email" id="email" name="email" placeholder="Inserisci l'email" required>
+            <input type="password" id="password" name="password" placeholder="Inserisci la password" required>
             <button type="submit">REGISTRATI</button>
-            <p class="signin">Hai già un account? <a href="#">Accedi</a></p>
         </form>
+        <p class="signin">Hai già un account? <a href="/">Accedi</a></p>
     </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            var formData = {
+                nome: document.getElementById('nome').value,
+                cognome: document.getElementById('cognome').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw response.json();
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('Account created successfully'); // Show success message
+                    if (data.redirect) {
+                        window.location.href = data.redirect; // Redirect to the login page
+                    }
+                })
+                .catch(errorPromise => {
+                    errorPromise.then(error => {
+                        console.error('Error:', error);
+                        alert('Error: ' + error.message);
+                    });
+                });
+        });
+    </script>
 </body>
 
 </html>
