@@ -6,7 +6,6 @@ require_once(__DIR__ . '/config/config.php');
 // Enable error logging to a file
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/logs/error_log.log');  // Specify the path to your log file
-
 // Serve signin.html as the homepage
 if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php') {
     // Check if the form is submitted
@@ -16,9 +15,6 @@ if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php')
 
         // Check if the email and password are provided
         if (isset($data['email']) && isset($data['password'])) {
-            // Echo the payload received from the client
-            echo json_encode(['message' => 'Payload received', 'payload' => $data]);
-
             // Connect to the database
             $conn = connectToDatabase();
 
@@ -36,30 +32,22 @@ if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php')
                         $row = $result->fetch_assoc();
                         $hashed_password = $row['password'];
 
-                        // Echo the database response
-                        echo json_encode(['message' => 'Database response', 'response' => $row]);
-
                         // Verify the password
                         if (password_verify($data['password'], $hashed_password)) {
                             // Password is correct, create a session
-                            
                             session_start();
                             $_SESSION['user_id'] = $row['id'];
-                            // echo json_encode(['message' => 'Login successful', 'redirect' => '/public/dashboard/dashboard.html']);
+                            echo json_encode(['message' => 'Login successful', 'redirect' => '/public/dashboard/dashboard.html']);
                             exit(); // Stop further execution
                         } else {
                             // Password is incorrect
                             http_response_code(401); // Unauthorized
-                            $logMessage = "Incorrect password for email: " . $data['email'];
-                            error_log($logMessage); // Log the message to the error log
                             echo json_encode(['message' => 'Incorrect email or password']);
                             exit(); // Stop further execution
                         }
                     } else {
                         // No user found with the provided email
                         http_response_code(404); // Not Found
-                        $logMessage = "User not found for email: " . $data['email'];
-                        error_log($logMessage); // Log the message to the error log
                         echo json_encode(['message' => 'User not found']);
                         exit(); // Stop further execution
                     }
@@ -88,6 +76,7 @@ if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php')
         exit();
     }
 }
+
 // Handle the register route
 if ($_SERVER['REQUEST_URI'] === '/register') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -199,7 +188,41 @@ if ($_SERVER['REQUEST_URI'] === '/dashboard/dashboard') {
     }
 }
 
-// Your existing code...
+if ($_SERVER['REQUEST_URI'] === '/event_pages/view_event?eventId=' . $eventId) {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        header('Content-Type: application/json'); // Set header for JSON response
+
+        // Check if eventId is provided in the query string
+        if (isset($_GET['eventId'])) {
+            $eventId = $_GET['eventId'];
+
+            // Connect to the database
+            $conn = connectToDatabase();
+
+            // Fetch event details by eventId
+            $stmt = $conn->prepare("SELECT * FROM evento WHERE id = ?");
+            $stmt->bind_param("i", $eventId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows == 1) {
+                $eventData = $result->fetch_assoc();
+                echo json_encode(['event' => $eventData]);
+            } else {
+                http_response_code(404); // Not Found
+                echo json_encode(['message' => 'Event not found']);
+            }
+
+            $stmt->close();
+            $conn->close();
+            exit();
+        } else {
+            http_response_code(400); // Bad Request
+            echo json_encode(['message' => 'Event ID is required']);
+            exit();
+        }
+    }
+}
 
 
 ?>

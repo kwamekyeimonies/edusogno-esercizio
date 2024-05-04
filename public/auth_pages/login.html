@@ -36,7 +36,7 @@
                     email: document.getElementById("email").value,
                     password: document.getElementById("password").value
                 };
-                const response = await fetch('/login', {
+                const response = await fetch('/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -50,29 +50,25 @@
                         const data = await response.json();
                         if (data.message === 'Login successful') {
                             alert(data.message); // Display success message
-                            // Access and utilize the user data from data.user_data
-                            console.log(data.user_data); // Log the user data to the console
-                            // You can further process the user data as needed
                             window.location.href = data.redirect; // Redirect to dashboard page
                         } else {
-                            errorMessage.textContent = data.message; // Display error message
+                            errorMessage.textContent = data.message; // Display other error messages
                         }
                     } else {
-                        // Handle non-JSON response
-                        alert('Success! Redirecting to dashboard...');
-                        window.location.href = '/public/dashboard/dashboard.html';
+                        alert('Success! Redirecting to dashboard...'); // Handle non-JSON response
+                        window.location.href = '/dashboard/dashboard.html';
                     }
                 } else {
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        const errorData = await response.json();
-                        errorMessage.textContent = errorData.message; // Display error message
+                    const errorData = await response.json();
+                    if (errorData.message === 'User not found' || errorData.message === 'Invalid credentials') {
+                        alert(errorData.message); // Display specific error messages
                     } else {
                         errorMessage.textContent = 'An error occurred. Please try again later.';
                     }
                 }
             });
         });
+
     </script>
 
 
