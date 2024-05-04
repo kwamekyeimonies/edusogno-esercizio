@@ -51,6 +51,10 @@
                     const eventDateTime = document.createElement("p");
                     eventDateTime.textContent = event.data_evento;
 
+                    const viewButton = document.createElement("button");
+                    viewButton.textContent = "View";
+                    viewButton.classList.add("view-btn");
+
                     const cardButtons = document.createElement("div");
                     cardButtons.classList.add("card-buttons");
 
@@ -62,6 +66,7 @@
                     deleteButton.textContent = "Delete";
                     deleteButton.classList.add("delete-btn");
 
+                    cardButtons.appendChild(viewButton);
                     cardButtons.appendChild(editButton);
                     cardButtons.appendChild(deleteButton);
 
@@ -70,6 +75,12 @@
                     eventCard.appendChild(cardButtons);
 
                     eventContainer.appendChild(eventCard);
+
+                    // Add event listener to the view button
+                    viewButton.addEventListener("click", () => {
+                        // Navigate to event details page with event ID as query parameter
+                        window.location.href = `/public/event_pages/view_event.html?eventId=${event.id}`;
+                    });
                 });
             };
 

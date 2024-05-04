@@ -2,12 +2,16 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f0f4f8;
     margin: 0;
-    padding: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-.container {
-    max-width: 500px;
-    margin: 50px auto;
+.event-details-container {
+    width: 80%;
+    max-width: 600px;
     background-color: #fff;
     padding: 30px;
     border-radius: 8px;
@@ -15,9 +19,8 @@ body {
 }
 
 h1 {
-    text-align: center;
-    margin-bottom: 20px;
     color: #333;
+    margin-bottom: 20px;
 }
 
 .form-group {
@@ -40,9 +43,7 @@ textarea {
     box-sizing: border-box;
 }
 
-button[type="submit"] {
-    display: block;
-    width: 100%;
+button {
     padding: 10px;
     background-color: #007BFF;
     color: white;
@@ -51,7 +52,6 @@ button[type="submit"] {
     cursor: pointer;
 }
 
-button[type="submit"]:hover {
+button:hover {
     background-color: #0056b3;
 }
-

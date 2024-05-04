@@ -1,11 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Event Details</title>
+    <link rel="stylesheet" href="/public/event_pages/styles/add_event_style.css">
 </head>
+
 <body>
-    
+    <div class="event-details-container">
+        <h1>Event Details</h1>
+        <form id="eventDetailsForm">
+            <div class="form-group">
+                <label for="eventName">Event Name</label>
+                <input type="text" id="eventName" name="eventName" readonly>
+            </div>
+            <div class="form-group">
+                <label for="eventDateTime">Event Date & Time</label>
+                <input type="datetime-local" id="eventDateTime" name="eventDateTime" readonly>
+            </div>
+            <!-- Add other event details fields here as needed -->
+
+            <!-- Update and Exit buttons -->
+            <button type="submit" id="updateEventBtn">Update</button>
+            <button type="button" id="exitBtn">Exit</button>
+        </form>
+    </div>
+
+    <script>
+        // JavaScript logic to fetch event details and populate the form fields
+        const eventDetailsForm = document.getElementById('eventDetailsForm');
+        const eventNameInput = document.getElementById('eventName');
+        const eventDateTimeInput = document.getElementById('eventDateTime');
+
+        // Mock data for demonstration (replace with actual data retrieval)
+        const eventData = {
+            id: 1,
+            nome_evento: 'Sample Event',
+            data_evento: '2024-05-10T15:00' // Sample date-time format
+            // Add other event details here
+        };
+
+        // Populate form fields with event details
+        eventNameInput.value = eventData.nome_evento;
+        eventDateTimeInput.value = eventData.data_evento;
+
+        // Event listener for form submission (update button)
+        eventDetailsForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent actual form submission
+            // Implement logic to update event details
+            console.log('Update button clicked');
+        });
+
+        // Event listener for exit button
+        document.getElementById('exitBtn').addEventListener('click', () => {
+            window.location.href = '/public/dashboard/dashboard.html'; // Navigate back to dashboard
+        });
+    </script>
 </body>
+
 </html>
