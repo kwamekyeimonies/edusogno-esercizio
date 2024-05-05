@@ -187,20 +187,20 @@ if ($_SERVER['REQUEST_URI'] === '/dashboard/dashboard') {
         exit();
     }
 }
-
-if ($_SERVER['REQUEST_URI'] === '/event_pages/view_event?eventId=' . $eventId) {
+if ($_SERVER['REQUEST_URI'] === '/event_pages/view_event') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         header('Content-Type: application/json'); // Set header for JSON response
 
         // Check if eventId is provided in the query string
         if (isset($_GET['eventId'])) {
-            $eventId = $_GET['eventId'];
+            $eventId = (int)$_GET['eventId']; // Convert to integer
+            echo json_encode(["id" => $eventId]); // Echo as JSON
 
             // Connect to the database
             $conn = connectToDatabase();
 
             // Fetch event details by eventId
-            $stmt = $conn->prepare("SELECT * FROM evento WHERE id = ?");
+            $stmt = $conn->prepare("SELECT * FROM eventi WHERE id = ?");
             $stmt->bind_param("i", $eventId);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -223,6 +223,5 @@ if ($_SERVER['REQUEST_URI'] === '/event_pages/view_event?eventId=' . $eventId) {
         }
     }
 }
-
 
 ?>

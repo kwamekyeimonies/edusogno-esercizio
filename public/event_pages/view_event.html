@@ -38,10 +38,13 @@
             const urlParams = new URLSearchParams(window.location.search);
             const eventId = urlParams.get('eventId');
 
+            console.log("id received: ", eventId);
+
             // Fetch event details based on eventId from index.php
             fetch(`/event_pages/view_event?eventId=${eventId}`)
                 .then(response => response.json())
                 .then(eventData => {
+                    console.log(eventData); // Log the received event data
                     // Populate form fields with event details
                     eventNameInput.value = eventData.event.nome_evento;
                     eventDateTimeInput.value = eventData.event.data_evento;
@@ -49,6 +52,7 @@
                 })
                 .catch(error => console.error('Error fetching event details:', error));
         });
+
 
         // Event listener for form submission (update button)
         eventDetailsForm.addEventListener('submit', (e) => {
