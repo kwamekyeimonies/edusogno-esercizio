@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Event</title>
+    <link rel="stylesheet" href="./styles/add_event_style.css">
+    <script src="../../assets/js/jquery.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Add New Event</h1>
+        <form id="addEventForm" action="/add_event" method="POST">
+            <div class="form-group">
+                <label for="eventName">Event Name</label>
+                <input type="text" id="eventName" name="nome_evento" required>
+            </div>
+            <div class="form-group">
+                <label for="eventDate">Event Date</label>
+                <input type="datetime-local" id="eventDate" name="data_evento" required>
+            </div>
+            <div class="form-group">
+                <label for="attendees">Attendees (separated by commas)</label>
+                <textarea id="attendees" name="attendees"></textarea>
+            </div>
+            <button type="submit">Add Event</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("addEventForm");
+
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault(); // Prevent the default form submission
+
+                // Create JSON object from form data
+                const formData = {
+                    nome_evento: document.getElementById("eventName").value,
+                    data_evento: document.getElementById("eventDate").value,
+                    attendees: document.getElementById("attendees").value
+                };
+
+                // Log the form data
+                console.log("Form data:", formData);
+
+                // AJAX call to submit the form data
+                try {
+                    const response = await fetch("../../index.php?endpoint=add_event", {
+                        method: "POST",
+                        body: JSON.stringify(formData),
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    const responseData = await response.json();
+                    console.log("Response from server:", responseData);
+                    // You can add further handling based on the server response
+                    // Check if the event was created successfully
+                    if (response.ok) {
+                        alert("Event created successfully!");
+                        // Redirect to the dashboard page
+                        window.location.href = "../../public/dashboard/dashboard.html";
+                    } else {
+                        alert("Failed to create event. Please try again.");
+                    }
+                } catch (error) {
+                    console.error("Error submitting form:", error);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

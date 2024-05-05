@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="./style/sign_up_style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Create an account</h1>
+        </div>
+        <form id="signupForm">
+            <input type="text" id="nome" name="nome" placeholder="firstname" required>
+            <input type="text" id="cognome" name="cognome" placeholder="lastname" required>
+            <input type="email" id="email" name="email" placeholder="email" required>
+            <input type="password" id="password" name="password" placeholder="password" required>
+            <button type="submit">SignUp</button>
+        </form>
+        <p class="signin">Already have an account? <a href="/">SignIn</a></p>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            var formData = {
+                nome: document.getElementById('nome').value,
+                cognome: document.getElementById('cognome').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            fetch('../../index.php?endpoint=register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw response.json();
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('Account created successfully'); // Show success message
+                    if (data.redirect) {
+                        window.location.href = data.redirect; // Redirect to the login page
+                    }
+                })
+                .catch(errorPromise => {
+                    errorPromise.then(error => {
+                        console.error('Error:', error);
+                        alert('Error: ' + error.message);
+                    });
+                });
+        });
+    </script>
+</body>
+
+</html>
