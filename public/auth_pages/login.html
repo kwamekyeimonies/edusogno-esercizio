@@ -10,19 +10,22 @@
 
 <body>
     <div class="login-container">
-        <h2>Hai già un account?</h2>
-        <form id="loginForm">
-            <div class="input-group">
-                <label for="email">Inserisci l'e-mail</label>
-                <input type="email" id="email" name="email" placeholder="name@example.com" required>
-            </div>
-            <div class="input-group">
-                <label for="password">Inserisci la password</label>
-                <input type="password" id="password" name="password" placeholder="Scrivila qui" required>
-            </div>
-            <button type="submit">ACCEDI</button>
-        </form>
-        <p>Non hai ancora un profilo? <a href="/register">Registrati</a></p>
+        <h2>Login</h2>
+        <div class="login_form_container">
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="name@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="password" required>
+                </div>
+                <button type="submit">ACCEDI</button>
+            </form>
+        </div>
+        <p>Does not have an account? <a href="/register">Signup</a></p>
+        <p><a href="/forgot_password">forgot password?</a></p> <!-- New "Forgot Password" link -->
     </div>
     <!-- Add this script tag inside the <head> section of your login.html -->
     <script>
@@ -70,8 +73,6 @@
         });
 
     </script>
-
-
 </body>
 
 </html>

@@ -79,7 +79,10 @@
                     // Add event listener to the view button
                     viewButton.addEventListener("click", () => {
                         // Navigate to event details page with event ID as query parameter
+                        console.log("Before the event page: ")
                         window.location.href = `/event_pages/view_event?eventId=${event.id}`;
+
+                        console.log("After the event selection: ")
                     });
                 });
             };
