@@ -7,11 +7,12 @@ password varchar(255),
 PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS eventi (
+CREATE TABLE IF NOT EXISTS evento (
 id int NOT NULL AUTO_INCREMENT,
 attendees text,
 nome_evento varchar(255),
 data_evento datetime,
+userId int references utenti(id),
 PRIMARY KEY (id)
 );
 

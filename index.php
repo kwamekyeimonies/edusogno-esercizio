@@ -3,6 +3,14 @@
 
 require_once(__DIR__ . '/config/config.php');
 
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+require 'PHPMailer/src/Exception.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 // Enable error logging to a file
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/logs/error_log.log');  // Specify the path to your log file
@@ -153,13 +161,6 @@ if ($_SERVER['REQUEST_URI'] === '/event_pages/add_event') {
     }
 }
 
-
-// index.php
-
-// Include your database connection and other required files
-
-// Your existing code...
-
 // Handle event fetching route
 if ($_SERVER['REQUEST_URI'] === '/dashboard/dashboard') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -223,5 +224,97 @@ if ($_SERVER['REQUEST_URI'] === '/event_pages/view_event') {
         }
     }
 }
+
+
+// Handle forgot password route
+if ($_SERVER['REQUEST_URI'] === '/forgot_password') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        include_once(__DIR__ . '/public/auth_pages/forgot_password.html');
+        exit();
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        header('Content-Type: application/json'); // Set header for JSON response
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Check if the email is provided
+        if (isset($data['email'])) {
+            // Connect to the database
+            $conn = connectToDatabase();
+
+            // Prepare and bind
+            if ($stmt = $conn->prepare("SELECT email FROM utenti WHERE email = ?")) {
+                $stmt->bind_param("s", $email);
+
+                // Set parameter from data received
+                $email = $data['email'];
+
+                // Execute the query
+                if ($stmt->execute()) {
+                    $result = $stmt->get_result();
+                    if ($result->num_rows == 1) {
+                        // Generate a unique token for verification
+                        $token = bin2hex(random_bytes(32)); // Example token generation, customize as needed
+
+                        // Update the user record in the database with the token
+                        // For example: UPDATE utenti SET reset_token = ? WHERE email = ?
+                        // You'll need to add a column `reset_token` in your database table
+
+                        // Send the verification email using PHPMailer
+                        $mail = new PHPMailer(true);
+
+                        try {
+                            //Server settings
+                            $mail->isSMTP();
+                            $mail->Host       = 'smtp.gmail.com';
+                            $mail->SMTPAuth   = true;
+                            $mail->Username   = 'teacodelab@gmail.com';
+                            $mail->Password   = 'boyteprmnpmutqgj'; // Use the sender's password here
+                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                            $mail->Port       = 587;
+
+                            //Recipients
+                            $mail->setFrom('teacodelab@gmail.com', 'TeaCodeLab');
+                            $mail->addAddress($email);
+                            //Content
+                            $mail->isHTML(true);
+                            $mail->Subject = 'Reset Your Password';
+                            $mail->Body    = 'Click the following link to reset your password: http://yourwebsite.com/reset_password?token=' . $token;
+
+                            $mail->send();
+                            echo json_encode(['message' => 'Password reset instructions sent to your email']);
+                            exit(); // Stop further execution
+                        } catch (Exception $e) {
+                            http_response_code(500); // Internal Server Error
+                            echo json_encode(['message' => 'Failed to send email: ' . $mail->ErrorInfo]);
+                            exit(); // Stop further execution
+                        }
+                    } else {
+                        // No user found with the provided email
+                        http_response_code(404); // Not Found
+                        echo json_encode(['message' => 'User not found']);
+                        exit(); // Stop further execution
+                    }
+                } else {
+                    http_response_code(500); // Internal Server Error
+                    echo json_encode(['message' => 'Failed to execute query', 'error' => $stmt->error]);
+                    exit(); // Stop further execution
+                }
+
+                // $stmt->close();
+            } else {
+                http_response_code(500); // Internal Server Error
+                echo json_encode(['message' => 'Failed to prepare statement', 'error' => $conn->error]);
+                exit(); // Stop further execution
+            }
+
+            // $conn->close();
+        } else {
+            // Email not provided
+            http_response_code(400); // Bad Request
+            echo json_encode(['message' => 'Email is required']);
+            exit(); // Stop further execution
+        }
+    }
+}
+
 
 ?>
