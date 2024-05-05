@@ -52,19 +52,19 @@
                         const data = await response.json();
                         if (data.user) {
                             sessionStorage.setItem('user',JSON.stringify(data.user))
-                            alert('Login successful'); // Display success message
-                            window.location.href = data.redirect; // Redirect to dashboard page
+                            alert('Login successful'); 
+                            window.location.href = data.redirect; 
                         } else {
-                            errorMessage.textContent = data.message; // Display other error messages
+                            errorMessage.textContent = data.message; 
                         }
                     } else {
-                        alert('Success! Redirecting to dashboard...'); // Handle non-JSON response
+                        alert('Success! Redirecting to dashboard...'); 
                         window.location.href = '../dashboard/dashboard.html';
                     }
                 } else {
                     const errorData = await response.json();
                     if (errorData.message === 'User not found' || errorData.message === 'Invalid credentials') {
-                        alert(errorData.message); // Display specific error messages
+                        alert(errorData.message); 
                     } else {
                         errorMessage.textContent = 'An error occurred. Please try again later.';
                     }

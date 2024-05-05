@@ -21,16 +21,12 @@
                 <label for="eventDateTime">Event Date & Time</label>
                 <input type="datetime-local" id="eventDateTime" name="eventDateTime" readonly>
             </div>
-            <!-- Add other event details fields here as needed -->
 
-            <!-- Update and Exit buttons -->
             <button type="submit" id="updateEventBtn">Update</button>
-            <!-- <button type="button" id="exitBtn">Exit</button> -->
         </form>
     </div>
 
     <script>
-        // JavaScript logic to fetch event details and populate the form fields
         const eventDetailsForm = document.getElementById('eventDetailsForm');
         const eventNameInput = document.getElementById('eventName');
         const eventDateTimeInput = document.getElementById('eventDateTime');
@@ -46,37 +42,32 @@
             }
             console.log("id received: ", eventId);
 
-            // Fetch event details based on eventId from index.php
             fetch(`../../index.php?endpoint=view_event&eventId=${eventId}`)
                 .then(response => response.json())
                 .then(eventData => {
-                    console.log(eventData); // Log the received event data
-                    // Populate form fields with event details
+                    console.log(eventData); 
+                   
                     eventNameInput.value = eventData.event.nome_evento;
                     eventDateTimeInput.value = eventData.event.data_evento;
-                    // Populate other event details fields as needed
                 })
                 .catch(error => console.error('Error fetching event details:', error));
         });
 
 
-        // Event listener for form submission (update button)
         eventDetailsForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Prevent actual form submission
-            // Implement logic to update event details
+            e.preventDefault(); 
+          
             const urlParams = new URLSearchParams(window.location.search);
             const eventId = urlParams.get('eventId');
-             // Create JSON object from form data
              const formData = {
                     id: eventId,
                     nome_evento: document.getElementById("eventName").value,
                     data_evento: document.getElementById("eventDateTime").value,
                 };
 
-                // Log the form data
+                
                 console.log("Form data:", formData);
 
-                // AJAX call to submit the form data
                 try {
                     const response = await fetch("../../index.php?endpoint=update_event", {
                         method: "PUT",
@@ -87,11 +78,8 @@
                     });
                     const responseData = await response.json();
                     console.log("Response from server:", responseData);
-                    // You can add further handling based on the server response
-                    // Check if the event was created successfully
                     if (responseData.message) {
                         alert(responseData.message);
-                        // Redirect to the dashboard page
                         window.location.href = "../../public/dashboard/dashboard.html";
                     } else {
                         alert(responseData.error);
@@ -101,11 +89,7 @@
                 }
         });
 
-        // Event listener for exit button
-        // document.getElementById('exitBtn').addEventListener('click', () => {
-        //     window.location.href = '../../public/dashboard/dashboard.html'; // Navigate back to dashboard
-        // });
-       
+      
        
     </script>
 </body>
