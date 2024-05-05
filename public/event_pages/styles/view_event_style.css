@@ -55,3 +55,9 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+#updateEventBtn{
+    width: 50%;
+    margin: auto;
+    
+}

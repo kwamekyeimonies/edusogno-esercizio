@@ -12,10 +12,15 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 // Enable error logging to a file
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/logs/error_log.log');  // Specify the path to your log file
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+$query_string = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+
+// Parse the query string into an associative array of parameters
+parse_str($query_string, $params);
 // Serve signin.html as the homepage
-if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php') {
+if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/dani/index.php?endpoint=login') {
     // Check if the form is submitted
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json'); // Set header for JSON response
@@ -27,7 +32,7 @@ if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php')
             $conn = connectToDatabase();
 
             // Prepare and bind
-            if ($stmt = $conn->prepare("SELECT id, email, password FROM utenti WHERE email = ?")) {
+            if ($stmt = $conn->prepare("SELECT * FROM utenti WHERE email = ?")) {
                 $stmt->bind_param("s", $email);
 
                 // Set parameter from data received
@@ -45,7 +50,7 @@ if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php')
                             // Password is correct, create a session
                             session_start();
                             $_SESSION['user_id'] = $row['id'];
-                            echo json_encode(['message' => 'Login successful', 'redirect' => '/public/dashboard/dashboard.html']);
+                            echo json_encode(['user' => $row, 'redirect' => '../../public/dashboard/dashboard.html']);
                             exit(); // Stop further execution
                         } else {
                             // Password is incorrect
@@ -86,7 +91,8 @@ if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php')
 }
 
 // Handle the register route
-if ($_SERVER['REQUEST_URI'] === '/register') {
+
+if ($_SERVER['REQUEST_URI'] === '/dani/index.php?endpoint=register') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         include_once(__DIR__ . '/public/auth_pages/signup.html');
         exit();
@@ -126,7 +132,7 @@ if ($_SERVER['REQUEST_URI'] === '/register') {
 }
 
 // Handle event submission route
-if ($_SERVER['REQUEST_URI'] === '/event_pages/add_event') {
+if ($_SERVER['REQUEST_URI'] === '/dani/index.php?endpoint=add_event') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json'); // Set header for JSON response
         $data = json_decode(file_get_contents('php://input'), true);
@@ -160,9 +166,81 @@ if ($_SERVER['REQUEST_URI'] === '/event_pages/add_event') {
         exit();
     }
 }
+// Handle event Update route
+if ($_SERVER['REQUEST_URI'] === '/dani/index.php?endpoint=update_event') {
+    if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        header('Content-Type: application/json'); // Set header for JSON response
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Connect to the database
+        $conn = connectToDatabase();
+
+        // Prepare and bind
+        if ($stmt = $conn->prepare("UPDATE evento SET  nome_evento = ?, data_evento = ? WHERE id = ?")) {
+            $stmt->bind_param("ssi", $nome_evento, $data_evento, $id);
+
+            // Set parameters from data received
+            $nome_evento = $data['nome_evento'];
+            $data_evento = $data['data_evento'];
+            $id = $data['id'];
+
+            if ($stmt->execute()) {
+                echo json_encode(['message' => 'Event updated successfully']);
+            } else {
+                http_response_code(500); // Internal Server Error
+                echo json_encode(['error' => 'Failed to submit event', 'error' => $stmt->error]);
+            }
+
+            $stmt->close();
+        } else {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['message' => 'Failed to prepare statement', 'error' => $conn->error]);
+        }
+
+        $conn->close();
+        exit();
+    }
+}
+
+// Handle event Delete route
+if ($params['endpoint']=='delete_event') {
+    if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+        header('Content-Type: application/json'); // Set header for JSON response
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Connect to the database
+        $conn = connectToDatabase();
+
+        // Prepare and bind
+        if ($stmt = $conn->prepare("DELETE FROM evento WHERE id = ?")) {
+            $stmt->bind_param("i", $id);
+
+            // Set parameters from data received
+  
+            $id = $params['eventId'];
+
+            if ($stmt->execute()) {
+                http_response_code(200); // Internal Server Error
+
+                echo json_encode(['message' => 'Event deleted successfully']);
+            } else {
+                http_response_code(500); // Internal Server Error
+                echo json_encode(['error' => 'Failed to submit event', 'error' => $stmt->error]);
+            }
+
+            $stmt->close();
+        } else {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['message' => 'Failed to prepare statement', 'error' => $conn->error]);
+        }
+
+        $conn->close();
+        exit();
+    }
+}
 
 // Handle event fetching route
-if ($_SERVER['REQUEST_URI'] === '/dashboard/dashboard') {
+if ($_SERVER['REQUEST_URI'] === '/dani/index.php?endpoint=dashboard') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         header('Content-Type: application/json'); // Set header for JSON response
 
@@ -188,20 +266,22 @@ if ($_SERVER['REQUEST_URI'] === '/dashboard/dashboard') {
         exit();
     }
 }
-if ($_SERVER['REQUEST_URI'] === '/event_pages/view_event') {
+
+if ($params['endpoint']=='view_event') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         header('Content-Type: application/json'); // Set header for JSON response
 
+
         // Check if eventId is provided in the query string
-        if (isset($_GET['eventId'])) {
-            $eventId = (int)$_GET['eventId']; // Convert to integer
-            echo json_encode(["id" => $eventId]); // Echo as JSON
+        if (isset($params['eventId'])) {
+            $eventId = (int)$params['eventId']; // Convert to integer
+            // echo json_encode(["id" => $eventId]); // Echo as JSON
 
             // Connect to the database
             $conn = connectToDatabase();
 
             // Fetch event details by eventId
-            $stmt = $conn->prepare("SELECT * FROM eventi WHERE id = ?");
+            $stmt = $conn->prepare("SELECT * FROM evento WHERE id = ?");
             $stmt->bind_param("i", $eventId);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -227,7 +307,7 @@ if ($_SERVER['REQUEST_URI'] === '/event_pages/view_event') {
 
 
 // Handle forgot password route
-if ($_SERVER['REQUEST_URI'] === '/forgot_password') {
+if ($_SERVER['REQUEST_URI'] === '/dani/index.php?endpoint=forgot_password') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         include_once(__DIR__ . '/public/auth_pages/forgot_password.html');
         exit();

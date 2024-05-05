@@ -2,15 +2,15 @@
 // config/config.php
 
 // Database configuration settings
-define('DB_HOST', 'localhost');         // The host of the database
-define('DB_PORT', '3306');              // The port MySQL is running on (default is 3306)
-define('DB_USERNAME', 'admin');         // The database username
-define('DB_PASSWORD', 'admin123');      // The database password
-define('DB_DATABASE', 'edusogodb');        // The database name
+define('DB_HOST', 'localhost');         
+define('DB_PORT', '3006');              
+define('DB_USERNAME', 'root');         
+define('DB_PASSWORD', '');      
+define('DB_DATABASE', 'Migrations');        
 
 // Function to establish a database connection
 function connectToDatabase() {
-    $conn = new mysqli(DB_HOST . ':' . DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+    $conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 
     // Check the connection
     if ($conn->connect_error) {

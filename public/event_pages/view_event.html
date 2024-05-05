@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Details</title>
-    <link rel="stylesheet" href="/public/event_pages/styles/add_event_style.css">
+    <link rel="stylesheet" href="./styles/add_event_style.css">
+    <link rel="stylesheet" href="./styles/view_event_style.css">
 </head>
 
 <body>
@@ -20,16 +21,12 @@
                 <label for="eventDateTime">Event Date & Time</label>
                 <input type="datetime-local" id="eventDateTime" name="eventDateTime" readonly>
             </div>
-            <!-- Add other event details fields here as needed -->
 
-            <!-- Update and Exit buttons -->
             <button type="submit" id="updateEventBtn">Update</button>
-            <button type="button" id="exitBtn">Exit</button>
         </form>
     </div>
 
     <script>
-        // JavaScript logic to fetch event details and populate the form fields
         const eventDetailsForm = document.getElementById('eventDetailsForm');
         const eventNameInput = document.getElementById('eventName');
         const eventDateTimeInput = document.getElementById('eventDateTime');
@@ -37,34 +34,63 @@
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const eventId = urlParams.get('eventId');
+            const isedit = urlParams.get('edit');
 
+            if(isedit){
+                eventNameInput.removeAttribute('readonly')
+                eventDateTimeInput.removeAttribute('readonly')
+            }
             console.log("id received: ", eventId);
 
-            // Fetch event details based on eventId from index.php
-            fetch(`/event_pages/view_event?eventId=${eventId}`)
+            fetch(`../../index.php?endpoint=view_event&eventId=${eventId}`)
                 .then(response => response.json())
                 .then(eventData => {
-                    console.log(eventData); // Log the received event data
-                    // Populate form fields with event details
+                    console.log(eventData); 
+                   
                     eventNameInput.value = eventData.event.nome_evento;
                     eventDateTimeInput.value = eventData.event.data_evento;
-                    // Populate other event details fields as needed
                 })
                 .catch(error => console.error('Error fetching event details:', error));
         });
 
 
-        // Event listener for form submission (update button)
-        eventDetailsForm.addEventListener('submit', (e) => {
-            e.preventDefault(); // Prevent actual form submission
-            // Implement logic to update event details
-            console.log('Update button clicked');
+        eventDetailsForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+          
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId');
+             const formData = {
+                    id: eventId,
+                    nome_evento: document.getElementById("eventName").value,
+                    data_evento: document.getElementById("eventDateTime").value,
+                };
+
+                
+                console.log("Form data:", formData);
+
+                try {
+                    const response = await fetch("../../index.php?endpoint=update_event", {
+                        method: "PUT",
+                        body: JSON.stringify(formData),
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    const responseData = await response.json();
+                    console.log("Response from server:", responseData);
+                    if (responseData.message) {
+                        alert(responseData.message);
+                        window.location.href = "../../public/dashboard/dashboard.html";
+                    } else {
+                        alert(responseData.error);
+                    }
+                } catch (error) {
+                    console.error("Error submitting form:", error);
+                }
         });
 
-        // Event listener for exit button
-        document.getElementById('exitBtn').addEventListener('click', () => {
-            window.location.href = '/public/dashboard/dashboard.html'; // Navigate back to dashboard
-        });
+      
+       
     </script>
 </body>
 

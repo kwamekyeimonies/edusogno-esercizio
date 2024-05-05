@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Event</title>
-    <link rel="stylesheet" href="/public/event_pages/styles/add_event_style.css">
+    <link rel="stylesheet" href="./styles/add_event_style.css">
+    <script src="../../assets/js/jquery.js"></script>
 </head>
 
 <body>
@@ -47,7 +48,7 @@
 
                 // AJAX call to submit the form data
                 try {
-                    const response = await fetch("/event_pages/add_event", {
+                    const response = await fetch("../../index.php?endpoint=add_event", {
                         method: "POST",
                         body: JSON.stringify(formData),
                         headers: {
@@ -61,7 +62,7 @@
                     if (response.ok) {
                         alert("Event created successfully!");
                         // Redirect to the dashboard page
-                        window.location.href = "/public/dashboard/dashboard.html";
+                        window.location.href = "../../public/dashboard/dashboard.html";
                     } else {
                         alert("Failed to create event. Please try again.");
                     }

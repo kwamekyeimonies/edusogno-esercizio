@@ -9,9 +9,12 @@
 </head>
 
 <body>
+    <div class="topbar">
+        <p id="username"></p>
+    </div>
     <div class="dashboard-container">
         <h1>Ciao NOME ecco i tuoi eventi</h1>
-        <a href="/public/event_pages/add_event.html" id="addEventBtn">Add Event</a>
+        <a href="../../public/event_pages/add_event.html" id="addEventBtn">Add Event</a>
         <div class="event-container" id="eventContainer">
             <!-- Events will be dynamically added here -->
         </div>
@@ -19,12 +22,14 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            const userdets = JSON.parse(sessionStorage.getItem('user'))
+            document.getElementById('username').innerText= userdets.nome +' '+userdets.cognome
             const eventContainer = document.getElementById("eventContainer");
 
             // Function to fetch events from the server
             const fetchEvents = async () => {
                 try {
-                    const response = await fetch("/dashboard/dashboard"); // Endpoint to fetch events
+                    const response = await fetch("../../index.php?endpoint=dashboard",{method:"GET"}); // Endpoint to fetch events
                     const eventData = await response.json();
                     if (response.ok) {
                         // Render events on the page
@@ -54,6 +59,8 @@
                     const viewButton = document.createElement("button");
                     viewButton.textContent = "View";
                     viewButton.classList.add("view-btn");
+                    viewButton.id=event.id
+
 
                     const cardButtons = document.createElement("div");
                     cardButtons.classList.add("card-buttons");
@@ -80,7 +87,39 @@
                     viewButton.addEventListener("click", () => {
                         // Navigate to event details page with event ID as query parameter
                         console.log("Before the event page: ")
-                        window.location.href = `/event_pages/view_event?eventId=${event.id}`;
+                        window.location.href = `../event_pages/view_event.html?eventId=${event.id}`;
+
+                        console.log("After the event selection: ")
+                    });
+                    
+                    // Add event listener to the edit button
+                    editButton.addEventListener("click", () => {
+                        // Navigate to event details page with event ID as query parameter
+                        console.log("Before the event page: ")
+                        window.location.href = `../event_pages/view_event.html?eventId=${event.id}&edit=true`;
+
+                        console.log("After the event selection: ")
+                    });
+                  
+                    // Add event listener to the edit button
+                    deleteButton.addEventListener("click", async() => {
+                        // Navigate to event details page with event ID as query parameter
+                        // console.log("Before the event page: ")
+                        try{
+
+                        const response =await fetch(`../../index.php?endpoint=delete_event&eventId=${event.id}`,{method: "DELETE",});
+                        const eventData =await response.json();
+                        if (eventData.message) {
+                            // Render events on the page
+                            alert(eventData.message)
+                        location.reload()
+
+                        } else {
+                            console.error("Failed to delete events:", eventData.message);
+                        }
+                    }catch(ex){
+                        console.log(ex)
+                    }
 
                         console.log("After the event selection: ")
                     });
@@ -89,6 +128,7 @@
 
             // Fetch events when the page loads
             fetchEvents();
+            
         });
     </script>
 </body>
